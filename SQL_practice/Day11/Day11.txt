@@ -1,0 +1,103 @@
+Day11
+
+1. Unique Key
+    (1) 해당 값이 동일한 row가 없게 하는 조건
+    (2) Primary Key와의 차이점
+        PK는 테이블에 하나만 존재하지만 UK는 여러 개 존재 가능
+        NULL을 미확정(NULL끼리 서로 다른 값으로 인정)으로 본다.
+
+2. Dual 테이블(Oracle,Maria,MySQL 계열)
+    - 오라클이나 MySQL이 기본적으로 제공하는 테이블
+    - 컬럼은 하나만 존재, 시퀀스, 날짜함수, 산술연산에 사용
+    - 웹서버에서 DB서버가 살아있는지 체크할 때 많이 사용
+
+3. 데이터 모델링 1
+    (1) 개념 모델링
+        영화                       상영관
+        ---------------------------------------------------
+        영화제목                   상영관명
+        영화감독                   좌석수
+        장르                   
+    (2) 논리 모델링
+        영화                       시간표           상영관
+        ----------------------------------------------------
+        영화제목(PK)               상영관명(FK)      상영관명(PK)
+        영화감독                   영화제목(FK)      좌석수
+        장르                       상영시간
+    
+    (3) 물리 모델링
+        논리 모델링에 따라서 테이블을 실제로 만드는 것
+        논리 모델링과 1:1이 일반적
+        논리 모델링과 용어가 다름(예-논리(Entity) : 물리(Table))
+
+4. SQL II
+    (1) 별칭(alias)
+        컬럼명을 바꾸거나 테이블을 두 개 이상 참조할 때
+        각 테이블에 별명을 지어줄 때 사용
+        - 컬럼명 별칭 : 컬럼명 as 별칭
+        - 테이블 별칭 : 테이블명 as 별칭(오라클은 as없어도됨)
+
+    (2) 연결(concatenation)
+        in Oracle)
+        문자열이나 컬럼의 결과값을 연결할 때 사용
+        컬럼1 || 컬럼2 >> 컬럼1컬럼2
+        컬러1 || '|' || 컬럼2 >> 컬럼1|컬럼2
+        문자열1 || 문자열2 >> 문자열1문자열2
+        'ABC' || 'DDD' >> ABCDDD
+
+        in mysql)
+        concat(컬럼1,컬럼2) >> 컬럼1컬럼2
+
+
+    (3) BETWEEN ~ AND
+        BETWEEN AAA AND BBB : AAA 이상 BBB 이하
+        AAA,BBB는 문자열도 가능
+        
+        DATE BETWEEN '20220820' AND '20220821235959'
+        DATE BETWEEN '20220820000000' AND '20220821235959'
+    
+    (4) LIKE
+        뒤에 오는 와일드카드 문자열과 비교하여
+        같다면 참, 다르다면 거짓
+        문자열의 포함여부를 알아낼 때 사용
+        컬럼명 LIKE '와일드카드 문자열'
+
+        * 와일드카드(Wildcard) 문자열
+            _: 아무거나 한 글자
+                예) '_유진' : 성은 모르겠고 이름이 유진
+            % :  모든 것(0글자 포함)
+                예) '%유진' : 유진포함 ******유진들이 다 True
+            '_정%' : 두 번째 글자가 정인 모든 것
+            '%정%' : 정이 포함된 모든 것
+            '%정_' : 뒤에서 두번째 글자가 정인 것
+            '_정_' : 세 글자인데 가운데 글자가 정인 것
+            '__정' : 세 글자인데 마지막 글자가 정인 것
+            다양한 식으로 응용 가능
+    (5) CASE WHEN
+        CASE WHEN ~~~ THEN ~~~
+             WHEN ~~~ THEN ~~~
+             ELSE ~~~ END
+
+    실습문제) 서울에 있는 병원 수, 부산에 있는 병원 수와 전국 대비 비율을
+                구하시오.
+
+5. MariaDB Built-in Function
+    (1) single row Function : 한 줄 입력, 한 줄 출력
+        1) Numeric
+            abs(x), ceil(x), floor(x), round(x,y)
+        2) Text
+            lower(str), upper(str), length(str)
+            substr(str,m,n)
+            lpad(str,n,text), rpad(str, n, text)
+            concat(str1,str2)
+            replace(str,fstr,sstr)
+        3) Date
+            add_months()
+        4) Conversion
+            to_char()
+    
+    (2) group(aggregate) Function : 여러 줄 입력, 한 줄 출력
+        1) count(*), distinct
+        2) min(), max(), avg(), sum()
+
+        * group by, order by, having
