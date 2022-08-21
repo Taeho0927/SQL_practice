@@ -1,0 +1,178 @@
+Day12
+
+1. 정규화(Normalization)
+    (1) 기본 목표
+        테이블 간의 중복된 데이터를 허용하지 않는 것
+        무결성을 유지하며 DB의 저장공간을 줄일 수 있다.
+    
+    (2) 정의
+        삽입, 수정, 삭제 시 발생할 수 있는 이상 현상을 줄이는 과정
+        테이블을 분해하는 것이며 보통 3차 정규화까지 진행
+    
+    (3) 필요 이유
+        테이블을 잘못 설계하면 불필요한 데이터 중복으로 인해
+        공간이 낭비되는데, 이를 이상현상(Anomaly)이라고 함
+
+        아이디  이름    전공    수업코드    수업명  인원
+        ------------------------------------------------
+        apple   김사과  컴공    C001        Java    30
+        apple   김사과  컴공    C002        DBMS    35
+        apple   김사과  컴공    C003        python  30
+        Haple   홍길동  경영    A001        아버지  10
+        Lapple  이순신  해양    B001        선박    15
+
+        1) 삽입 이상 : 새로운 데이터를 삽입하기 위해
+                        불필요한 데이터도 넣어야 하는 문제
+            예) 과목이 정해지지 않은 학생을 넣으려면 수업명에
+                NULL을 입력할 수 없어서 수업명을 '미정', 수업코드는'XXXX'등을
+                새로 만들어서 넣어야함
+
+        2) 갱신 이상 : 중복된 행 중 일부만 변경해서 데이터가
+                        불일치 되는 것
+            예) 김사과 학생이 전공을 때려치고 기계로 바꾸려면
+                3개 데이터를 변경해야 함
+
+        3) 삭제 이상 : 행을 삭제하면 필요한 데이터까지 삭제되는 현상
+            예) 아버지 수업을 폐강하는 경우 홍길동 정보를 지우는 실수 발생
+
+    (4) 정규화의 종류
+        1) 1차 정규화
+            하나의 컬럼에는 하나의 값만 존재해야 한다(원자성)
+            * 도시건설 게임
+            USER        Building            Cost             Place        Place_size
+            ------------------------------------------------------------------------
+            Barh        Farm,Fac             50,70         Plain,City       100,200
+            Mozart      Farm ,Farm ,CloShop  50,70,200     Plain,City,City  100,200,200
+            Tscai       Fac                  70            Shore            500
+
+
+            USER    Building    Cost    Place   Place_size
+            --------------------------------------------------
+            Barh    Farm        50      Plain   100
+            Barh    Fac         70      City    200
+            Mozart  Farm        50      Plain   100
+            Mozart  Fac         70      City    200
+            Mozart  ClothesShop 200     City    200
+            Tscai   Fac         70      Shore   500
+
+        2) 2차 정규화(2nd Normal Form, 2NF)
+            후보키의 진부분집합에서 부분함수 중속성을 제거하는 작업
+            부분함수적 종속을 완전함수적 종속으로 만드는 과정
+
+            USER    Building    Place   Place_size      Building    Cost
+            ---------------------------------------     ----------------   
+            Barh    Farm        Plain   100             Farm        50
+            Barh    Fac         City    200             Fac         70
+            Mozart  Farm        Plain   100             ClothesShop 200
+            Mozart  Fac         City    200
+            Mozart  ClothesShop City    200
+            Tscai   Fac         Shore   500
+
+        3) 3차 정규화
+            1차 정규화 및 2차 정규화를 만족하고
+            이행적 함수적 종속을 가지지 않는 정규형
+            이행적 함수적 종속 : A값을 알면 B값을 알고, B값을 알면 C값을
+
+            USER    Building    Place       Building    Cost    Place   Place_size
+            -------------------------       ----------------    ------------------
+            Barh    Farm        Plain       Farm        50      Plain   100
+            ~~~                             Fac         70      City    200
+            Tscai   Fac         Shore       ClothesShop 200     Shore   500
+
+    (5) 반정규화
+        활용 단계에서 정규화를 진행하지 않는 게 더 편리하다면 반정규화를 진행
+
+        예)
+        hash_tag
+        1   DBMS
+        1   LIKE
+        1   GOOD
+        3   DBMS
+        3   Boring
+
+        board
+        1   Funny DBMS   apple
+        2   Funny Python apple
+        3   Boring DBMS  melon
+
+        반정규화
+        board
+        1   Funny DBMS   apple   #DBMS#LIKE#GOOD
+        2   Funny Python apple   
+        3   Boring DBMS  melon   #DBMS#Boring
+
+2. CTAS
+    Create Table as Select의 약자
+    (1) 특정 테이블의 일부 row만 가져와서 새 테이블 구성
+        1) 테이블 백업
+            새로운 테이블 만들기->기존 테이블에서 데이터를 가져와서 insert
+            이 과정이 필요없음
+        2) 테이블 신규 생성 시 column의 데이터 타입 설정 불필요
+            원천의 데이터 타입을 그대로 복제함
+    (2) 여러 테이블의 데이터를 가져와서 새로운 테이블 구성
+        select 이하 절을 여러 테이블 join
+    (3) 특정 테이블의 일부 column만 가져와서 새 테이블 구성
+
+3. join
+    여러 테이블에 흩어져 있는 정보 중 사용자가 필요한 정보만 가져와서
+    가상의 테이블처럼 만들고 결과를 보여주는 것 
+    조회 테이블이 쪼개져 있으면 원하는 결과를 가져오기 위해
+    두 번 이상의 테이블 검색이 필요하다.
+    (1) Inner Join(내부 조인)
+        조건에 일치하는 값이 양쪽 테이블에 모두 존재할 때
+        
+        테이블명1 Inner join 테이블명2 on 조인 조건
+
+    (2) Natural join(자연 조인)
+        두 개 테이블 조인을 할 때, 컬럼명이 같은 컬럼은 자동으로
+        inner 조인을 수행한다.
+        내가 의도하지 않은 결과가 충분히 나올 수 있기 때문에
+        실전에서는 거의 사용하지 않음 
+
+    (3) Outer Join(외부 조인)
+        한 쪽의 데이터가 없더라도 
+        기준이 되는 테이블의 모든 정보가 검색되어야 할 때 사용
+
+        고객 테이블                 직원 테이블
+        1111                        2222
+        2222
+        3333
+
+        (원하는 결과)
+        1111    직원아님
+        2222    직원
+        3333    직원아님
+
+        select case when b.id is null then "직원아님"
+                    else "직원" end as "직원여부"
+        from 고객 테이블A left outer join 직원 테이블B on A.id = b.id
+        ;
+
+         left outer join : 왼쪽 테이블 기준으로 조회
+         right outer join : 오른쪽 테이블 기준으로 조회
+         full outer join : 양쪽 테이블 기준으로 없는 데이터는 null로 조회
+
+        실제 사용 사례)
+        with 기준테이블 as (
+
+        )
+        select a.id, b.---,c.----,d.ccc,e.DDD
+        from 기준테이블 a 
+            left outer join b on a.id=b.id
+            left outer join c on a.id = c.id
+            left outer join d on a.id = d.id
+            left outer join e on a.id = e.id
+        ;
+
+        (Only Oracle DB)
+        with 기준테이블 as(
+            
+        )
+        select a.id, b.---,c.----,d.ccc,e.DDD
+        from 기준테이블 a,b,c,d,e 
+        where a.id(+) = b.id
+        and a.id(+) = c.id
+        and a.id(+) = d.id
+        and a.id(+) = e.id
+        ;
+                        
