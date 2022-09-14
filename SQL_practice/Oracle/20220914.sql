@@ -1,68 +1,13 @@
-SELECT *
-from customer,orders
-where customer.custid=orders.custid
-order by customer.custid
-;
-
-SELECT customer.name,customer.custid,sum(orders.saleprice
-from customer,orders
-where customer.custid=orders.custid
-group by customer.custid,customer.name
-order by customer.name
-;
-
-select customer.name,book.bookname,orders.saleprice as ����
-from customer,orders,book
-where customer.custid=orders.custid and orders.bookid=book.bookid
-;
-
-select customer.name, book.bookname
-from customer,orders,book
-where customer.custid=orders.custid and orders.bookid=book.bookid and book.price = 20000
-;
-
-select customer.name, saleprice
-from customer left join orders
-on customer.custid= orders.custid
-;
-
-select bookname
-from book
-where price = (select max(price)from book)
-;
-
-select name
-from customer
-where custid in (select custid from orders)
-;
-
-select name
-from customer
-where custid not in(select custid
-             from orders
-             where bookid in(select bookid
-                             from book
-                             where publisher = '���ѹ̵��'))
-;
-
-select b1.bookname ,b1.publisher
-from book b1
-where b1.price > (Select avg(b2.price)
-                 from book b2
-                 where b2.publisher =b1.publisher);
-                 
-/* ������ ������ ����� �߿� ���ѹ̵�� å�� �ѹ��̶� �Ȼ���*/
+/*과제 내용 : 서브쿼리를 이용하여 마당 데이터베이스 에서 도서를 구매하지 않은 고객 중 '대한미디어'의 책을 구매하지 않은 고객의 이름을 출력하시오*/
 select name
 from customer
 where custid  in(select custid
              from orders
              where bookid not in(select bookid
                              from book
-                             where publisher = '���ѹ̵��')
+                             where publisher = '대한미디어')
                              and custid not in(select custid
                              from orders
                              where bookid in(select bookid
                              from book
-                             where publisher = '���ѹ̵��')));
-                             
-                            
+                             where publisher = '대한미디어')));
